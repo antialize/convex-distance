@@ -27,26 +27,26 @@ const double rel_error = 1e-6; // relative error in the computed distance
 const double abs_error = 1e-10; // absolute error if the distance is almost zero
 
 struct Computer {
-	Point p[4];    // support points of object A in local coordinates 
-	Point q[4];    // support points of object B in local coordinates 
-	Point y[4];   // support points of A - B in world coordinates
+	Point p[3];    // support points of object A in local coordinates 
+	Point q[3];    // support points of object B in local coordinates 
+	Point y[3];   // support points of A - B in world coordinates
 	
 	int bits;      // identifies current simplex
 	int last;      // identifies last found support point
 	int last_bit;  // last_bit = 1<<last
 	int all_bits;  // all_bits = bits|last_bit 
 	
-	double det[16][4]; // cached sub-determinants
+	double det[8][3]; // cached sub-determinants
 	
 	void compute_det() {
-		static double dp[4][4];
+		static double dp[3][3];
 		
-		for (int i = 0, bit = 1; i < 4; ++i, bit <<=1) 
+		for (int i = 0, bit = 1; i < 3; ++i, bit <<=1) 
 			if (bits & bit) dp[i][last] = dp[last][i] = dot(y[i], y[last]);
 		dp[last][last] = dot(y[last], y[last]);
 		
 		det[last_bit][last] = 1;
-		for (int j = 0, sj = 1; j < 4; ++j, sj <<= 1) {
+		for (int j = 0, sj = 1; j < 3; ++j, sj <<= 1) {
 			if (bits & sj) {
 				int s2 = sj|last_bit;
 				det[s2][j] = dp[last][last] - dp[last][j]; 
@@ -64,24 +64,24 @@ struct Computer {
 				}
 			}
 		}
-		if (all_bits == 15) {
-			det[15][0] = det[14][1] * (dp[1][1] - dp[1][0]) + 
-				det[14][2] * (dp[2][1] - dp[2][0]) + 
-				det[14][3] * (dp[3][1] - dp[3][0]);
-			det[15][1] = det[13][0] * (dp[0][0] - dp[0][1]) + 
-				det[13][2] * (dp[2][0] - dp[2][1]) + 
-				det[13][3] * (dp[3][0] - dp[3][1]);
-			det[15][2] = det[11][0] * (dp[0][0] - dp[0][2]) + 
-				det[11][1] * (dp[1][0] - dp[1][2]) +  
-				det[11][3] * (dp[3][0] - dp[3][2]);
-			det[15][3] = det[7][0] * (dp[0][0] - dp[0][3]) + 
-				det[7][1] * (dp[1][0] - dp[1][3]) + 
-				det[7][2] * (dp[2][0] - dp[2][3]);
+
+		if (all_bits == 7) {
+			det[7][0]
+				= det[6][1] * (dp[1][1] - dp[1][0])
+				+ det[6][2] * (dp[2][1] - dp[2][0]);
+			
+			det[7][1]
+				= det[5][0] * (dp[0][0] - dp[0][1])
+				+ det[5][2] * (dp[2][0] - dp[2][1]);
+
+			det[7][2]
+				= det[3][0] * (dp[0][0] - dp[0][2])
+				+ det[3][1] * (dp[1][0] - dp[1][2]);
 		}
 	}
 	
 	inline bool valid(int s) {  
-		for (int i = 0, bit = 1; i < 4; ++i, bit <<= 1) {
+		for (int i = 0, bit = 1; i < 3; ++i, bit <<= 1) {
 			if (all_bits & bit) {
 				if (s & bit) { if (det[s][i] <= 0) return false; }
 				else if (det[s|bit][i] > 0) return false;
@@ -106,7 +106,7 @@ struct Computer {
 		double sum = 0;
 		p1.zero();
 		p2.zero();
-		for (int i = 0, bit = 1; i < 4; ++i, bit <<= 1) {
+		for (int i = 0, bit = 1; i < 3; ++i, bit <<= 1) {
 			if (bits1 & bit) {
 				sum += det[bits1][i];
 			p1 += p[i] * det[bits1][i];
@@ -175,7 +175,7 @@ struct Computer {
 		bits = 0;
 		all_bits = 0;
 		double mu = 0;
-		while (bits < 15 && dist > abs_error) {
+		while (bits < 8 && dist > abs_error) {
 			last = 0;
 			last_bit = 1;
 			while (bits & last_bit) { ++last; last_bit <<= 1; }
