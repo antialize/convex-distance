@@ -19,24 +19,48 @@
 // Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "distance.h"
+#include <string>
+#include <iostream>
 
-int main() {
-	{
-		Polygon a {Point(0, 0), Point(0,9), Point(3,3), Point(0,3)};
-		Polygon b {Point(4, 4), Point(4,6), Point(6,4)};
-		
-		Point p_a;
-		Point p_b;
-		closest_points(a, b, p_a, p_b);
-		std::cout << p_a << " bs " << p_b << std::endl;
-	}
-	{
-		Polygon a {{Point(0, 0), Point(0,6), Point(6,6), Point(6,0)}};
-		Polygon b {{Point(4, 4), Point(5,5)}};
-		
-		Point p_a;
-		Point p_b;
-		closest_points(a, b, p_a, p_b);
-		std::cout << p_a << " bs " << p_b << std::endl;
-	}
+int test(Polygon a,
+		 Polygon b,
+		 double dist_sq) {
+	Point p_a;
+	Point p_b;
+	closest_points(a, b, p_a, p_b);
+	double ds=length2(p_a-p_b);
+	if (fabs(ds - dist_sq) < 1e-6) return EXIT_SUCCESS;
+	std::cerr << "Distance " << ds << " should be " << dist_sq
+			  << " (" << p_a << " to " << p_b << ")" << std::endl;
+	return EXIT_FAILURE;
+}
+
+int main(int argc, char ** argv) {
+	const std::string t = argv[1];
+	if (t == "lines1")
+		return test({{1,1}, {1,3}}, {{2,2}, {3,2}}, 1.0);
+	else if (t == "lines2")
+		return test({{1,1}, {1,3}}, {{2,4}, {3,4}}, 2.0);
+	else if (t == "lines3")
+		return test({{1,1}, {3,3}}, {{1,3}, {3,1}}, 0.0);
+	else if (t == "lines4")
+		return test({{1,1}, {1,3}}, {{1,1}, {1,3}}, 0.0);
+	else if (t == "lines5")
+	 	return test({{0,0}, {0,6}, {6,6}, {6,0}}, {{4,4}, {5,5}}, 0.0);
+	else if (t == "point1")
+		return test({{1,1}}, {{1,3}, {3,1}}, 2.0);
+	else if (t == "point2")
+	 	return test({{1,1}}, {{1,1}, {2,2}}, 0.0);
+	else if (t == "point3")
+		return test({{1,1}}, {{2,2}}, 2.0);
+	else if (t == "tri1")
+	 	return test({{1,1}, {1,2}, {2,1}}, {{1,1}, {1,2}, {2,1}}, 0.0);
+	else if (t == "tri2")
+	 	return test({{1,1}, {1,2}, {2,1}}, {{2,2}, {1,2}, {2,1}}, 0.0);
+	else if (t == "tri3")
+	 	return test({{0,0}, {0,10}, {10,0}}, {{1,1}, {2,1}, {1,2}}, 0.0);
+	else if (t == "gen1")
+		return test({{0,0}, {0,9}, {3,3}, {0,3}}, {{4, 4}, {4,6}, {6,4}}, 1.8);
+	else
+		return EXIT_FAILURE;
 }
