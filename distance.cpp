@@ -143,9 +143,31 @@ inline bool degenerate(const Point& w) {
 	return false;
 }
 
+Point support(const Polygon & points, int & ci, const Point & v) {
+	double h = dot(points[ci], v), d;
+	int ni = ci < points.size()-1 ? ci+1 : 0;
+	if ((d = dot(points[ni], v)) > h) { 
+		do { 
+			h = d; ci = ni;
+			if (++ni == points.size()) ni = 0;
+		}
+		while ((d = dot(points[ni], v)) > h);
+	}
+	else {
+		ni = ci ? ci-1 : points.size()-1;
+		while ((d = dot(points[ni], v)) > h) {
+			h = d; ci = ni;
+			if (ni) --ni; else ni = points.size()-1;
+		}
+	}  
+	return points[ci];
+}
+
+
 void closest_points(const Polygon & a, const Polygon & b,
 					Point& pa, Point& pb) {
-	Point v = a.points[0] - b.points[0];
+	int ci_a = 0, ci_b = 0;
+	Point v = a[0] - b[0];
 	double dist = v.length();
 	Point w;
 	bits = 0;
@@ -155,8 +177,8 @@ void closest_points(const Polygon & a, const Polygon & b,
 		last = 0;
 		last_bit = 1;
 		while (bits & last_bit) { ++last; last_bit <<= 1; }
-		p[last] = a.support(-v);
-		q[last] = b.support(v);
+		p[last] = support(a, ci_a, -v);
+		q[last] = support(b, ci_b, v);
 		w = p[last] - q[last];
 		mu = std::max(mu, dot(v, w) / dist);
 		if (dist - mu <= dist * rel_error) break; 

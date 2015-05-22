@@ -72,33 +72,35 @@ protected:
 };
 
 
-class Polygon {
-public:
-	Polygon( std::vector<Point> points): points(points), ci(0) {}
+typedef std::vector<Point> Polygon;
+
+// class Polygon {
+// public:
+// 	Polygon( std::vector<Point> points): points(points), ci(0) {}
  
-	Point support(const Point & v) const {
-		double h = dot(points[ci], v), d;
-		int ni = ci < points.size()-1 ? ci+1 : 0;
-		if ((d = dot(points[ni], v)) > h) { 
-			do { 
-				h = d; ci = ni;
-				if (++ni == points.size()) ni = 0;
-			}
-			while ((d = dot(points[ni], v)) > h);
-		}
-		else {
-			ni = ci ? ci-1 : points.size()-1;
-			while ((d = dot(points[ni], v)) > h) {
-				h = d; ci = ni;
-				if (ni) --ni; else ni = points.size()-1;
-			}
-		}  
-		return points[ci];
-	}
+// 	Point support(const Point & v) const {
+// 		double h = dot(points[ci], v), d;
+// 		int ni = ci < points.size()-1 ? ci+1 : 0;
+// 		if ((d = dot(points[ni], v)) > h) { 
+// 			do { 
+// 				h = d; ci = ni;
+// 				if (++ni == points.size()) ni = 0;
+// 			}
+// 			while ((d = dot(points[ni], v)) > h);
+// 		}
+// 		else {
+// 			ni = ci ? ci-1 : points.size()-1;
+// 			while ((d = dot(points[ni], v)) > h) {
+// 				h = d; ci = ni;
+// 				if (ni) --ni; else ni = points.size()-1;
+// 			}
+// 		}  
+// 		return points[ci];
+// 	}
 	
-	std::vector<Point> points;
-	mutable int ci;
-};
+// 	std::vector<Point> points;
+// 	mutable int ci;
+// };
 
 void closest_points(const Polygon &, const Polygon &, Point&, Point&);
 

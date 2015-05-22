@@ -22,8 +22,8 @@
 
 int main() {
 	{
-		Polygon a {{Point(0, 0), Point(0,9), Point(3,3), Point(0,3)}};
-		Polygon b {{Point(4, 4), Point(4,6), Point(6,4)}};
+		Polygon a {Point(0, 0), Point(0,9), Point(3,3), Point(0,3)};
+		Polygon b {Point(4, 4), Point(4,6), Point(6,4)};
 		
 		Point p_a;
 		Point p_b;
